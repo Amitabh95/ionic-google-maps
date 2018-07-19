@@ -1,14 +1,42 @@
 <ion-header>
   <ion-navbar>
     <ion-title>
-      Ionic Blank
+      Ionic Map
     </ion-title>
   </ion-navbar>
 </ion-header>
 
 <ion-content padding>
-  The world is your oyster.
-  <p>
-    If you get lost, the <a href="http://ionicframework.com/docs/v2">docs</a> will be your guide.
-  </p>
+      <div #map id="map"></div>
+    <ion-row>
+        <div text-center>
+            <button ion-button (click)="nearbyPlace('hospital')">Hospital{{placesArray.length}}</button>
+            <button ion-button (click)="nearbyPlace('restaurant')">Restaurant</button>
+        </div>
+    </ion-row>
+    <ion-row>
+        <ion-scroll scrollY="true">
+            <div *ngFor="let place of placesArray">
+              <p>{{place.name}}</p>
+                <!-- <ion-card item-content *ngFor="let place of placesArray">
+                    <p>{{place.name}}</p>
+                  <ion-col>
+                      <img src="{{place.icon}}"/>
+                  </ion-col>
+                  <ion-col>
+                      <div class="card-title">{{place.name}}</div>
+                  </ion-col>
+                  <ion-col>
+                      <div class="card-subtitle">{{place.vicinity}}</div>
+                    </ion-col>
+                </ion-card> -->
+            </div>
+    </ion-scroll>
+    </ion-row>
+    
+    <div>
+        
+  </div>
+
+    
 </ion-content>
