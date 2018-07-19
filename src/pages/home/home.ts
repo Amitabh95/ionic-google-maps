@@ -50,10 +50,12 @@ export class HomePage {
 
 
  /*--------------------Find Nearby Place------------------------*/ 
+   
 
   nearbyPlace(isType){
     //this.loadMap();
     this.markers = [];
+    console.log('**',this.placesArray);
     this.placesArray = [];
     let service = new google.maps.places.PlacesService(this.map);
     service.nearbySearch({
@@ -61,26 +63,35 @@ export class HomePage {
               radius: this.isKM,
               types: [isType]
             }, (results, status) => {
-                this.callback(results, status);
+                //this.callback(results, status);
+                if (status === google.maps.places.PlacesServiceStatus.OK) {
+                  results.forEach((item, i) => {
+                  this.createMarker(results[i]);
+                  // console.log(item);
+                  // console.log(i);
+                });
+              }
             });
   }
 
-  callback(results, status) {
-    if (status === google.maps.places.PlacesServiceStatus.OK) {
-        results.forEach((item, i) => {
-        this.createMarker(results[i]);
-        // console.log(item);
-        // console.log(i);
-      });
-    }
+  // callback(results, status) {
+  //   if (status === google.maps.places.PlacesServiceStatus.OK) {
+  //       results.forEach((item, i) => {
+  //       this.createMarker(results[i]);
+  //       // console.log(item);
+  //       // console.log(i);
+  //     });
+  //   }
 
-    console.log(this.placesArray);
-  }
+    
+  // }
 
   createMarker(place){
+    this.markers = [];
     this.placesArray.push(place);
-    var placeLoc = place;
-    console.log('placeLoc',placeLoc);
+    //var placeLoc = place;
+
+   // console.log('placeLoc',place);
     this.markers = new google.maps.Marker({
         map: this.map,
         position: place.geometry.location

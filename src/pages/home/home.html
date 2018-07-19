@@ -8,35 +8,19 @@
 
 <ion-content padding>
       <div #map id="map"></div>
-    <ion-row>
         <div text-center>
-            <button ion-button (click)="nearbyPlace('hospital')">Hospital{{placesArray.length}}</button>
+            <button ion-button (click)="nearbyPlace('hospital')">Hospital</button>
             <button ion-button (click)="nearbyPlace('restaurant')">Restaurant</button>
         </div>
-    </ion-row>
-    <ion-row>
-        <ion-scroll scrollY="true">
-            <div *ngFor="let place of placesArray">
-              <p>{{place.name}}</p>
-                <!-- <ion-card item-content *ngFor="let place of placesArray">
-                    <p>{{place.name}}</p>
-                  <ion-col>
-                      <img src="{{place.icon}}"/>
-                  </ion-col>
-                  <ion-col>
-                      <div class="card-title">{{place.name}}</div>
-                  </ion-col>
-                  <ion-col>
-                      <div class="card-subtitle">{{place.vicinity}}</div>
-                    </ion-col>
-                </ion-card> -->
-            </div>
-    </ion-scroll>
-    </ion-row>
-    
-    <div>
-        
-  </div>
-
-    
+            <ion-list>
+                    <ion-scroll class="scroll" scrollY="true">
+                            <ion-item *ngFor="let place of placesArray">
+                                    <ion-avatar item-left>
+                                        <img src="{{place.icon}}">
+                                    </ion-avatar>
+                                      <h2>{{place.name}}</h2>
+                                      <p>Address: {{place.vicinity}}</p>
+                                </ion-item>
+                        </ion-scroll>    
+            </ion-list>
 </ion-content>
