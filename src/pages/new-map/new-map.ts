@@ -9,13 +9,12 @@ import { Storage } from '@ionic/storage';
 import 'rxjs/add/operator/debounceTime';
 import { OfflineInterfacePage } from '../offline-interface/offline-interface';
 
-
-
+@IonicPage()
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html'
+  selector: 'page-new-map',
+  templateUrl: 'new-map.html',
 })
-export class HomePage {
+export class NewMapPage {
   searchTerm: string = '';
   searchControl: FormControl;
   items: any;
