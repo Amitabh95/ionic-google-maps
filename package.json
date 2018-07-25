@@ -64,6 +64,9 @@
       "cordova-plugin-network-information": {},
       "cordova-plugin-x-toast": {},
       "cordova-sqlite-storage": {}
-    }
+    },
+    "platforms": [
+      "android"
+    ]
   }
 }

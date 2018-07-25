@@ -48,6 +48,7 @@ search: boolean = false;
     
     this.network.onConnect().subscribe(() => {
       this.showConnectedToast();
+      this.navCrtl.pop();
       console.log('network connected!');
     });
 

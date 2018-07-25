@@ -8,8 +8,6 @@ import { AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import 'rxjs/add/operator/debounceTime';
 import { OfflineInterfacePage } from '../offline-interface/offline-interface';
-import { CheckConnectivityProvider } from '../../providers/check-connectivity/check-connectivity';
-
 
 
 @Component({
@@ -44,8 +42,6 @@ export class HomePage {
   resultArray: any[] = [];
   hospitalList: any[]= [];
   restaurantList: any[] = [];
-  connected: boolean;
-  disconnectedCounter: number = 0;
 
   constructor(
     private ngZone: NgZone,
@@ -59,32 +55,28 @@ export class HomePage {
    // private checkConnectivityProvider: CheckConnectivityProvider,
     private eventCtrl: Events
   ) { 
-        platform.ready().then(() => {
-          this.loadMap();
-        });
-        this.connected = false;
         this.searchControl = new FormControl();
         
   }
 
   ionViewDidLoad() {
+    this.platform.ready().then(() => {
+      this.loadMap();
+    });
    this.checkNetworkConnectivity();
   }
+
 
   checkNetworkConnectivity(){
     
     this.network.onConnect().subscribe(() => {
-        this.connected = true;
       this.showConnectedToast();
       console.log('network connected!');
     });
 
     this.network.onDisconnect().subscribe(() => {
-
-      if(this.connected === false){
         this.showDisconnectedToast();
         this.presentConfirm();
-      }
       console.log('network was disconnected :-(');
     });
   }

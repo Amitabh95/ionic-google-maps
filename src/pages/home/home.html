@@ -18,7 +18,6 @@
             <button ion-button (click)="makeHospitalList()">Hospital</button>
             <button ion-button (click)="makeRestaurantsList()">Restaurant</button>
             <button ion-button (click)="loadMap()">Reset</button>
-            <button ion-button (click)="goToOffline()">Offline</button>
           </div>
           <div *ngIf="showSearchBox">
               <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchControl" (ionInput)="onSearchInput()"></ion-searchbar>
