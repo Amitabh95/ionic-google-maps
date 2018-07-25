@@ -10,4 +10,31 @@ page-home {
       text-align: center;
       padding: 3px;
   }
+      a[href^="http://maps.google.com/maps"]{display:none !important}
+      a[href^="https://maps.google.com/maps"]{display:none !important}
+
+      .gmnoprint a, .gmnoprint span, .gm-style-cc {
+          display:none;
+      }
+      .gmnoprint div {
+          background:none !important;
+      }
+    //   ion-searchbar {
+    //     width: 25px;
+    //     box-sizing: border-box;
+    //     border: 2px solid #ccc;
+    //     border-radius: 4px;
+    //     font-size: 16px;
+    //     background-color: white;
+    //     background-image: url('searchicon.png');
+    //     background-position: 10px 10px; 
+    //     background-repeat: no-repeat;
+    //     padding: 12px 20px 12px 20px;
+    //     -webkit-transition: width 0.4s ease-in-out;
+    //     transition: width 0.4s ease-in-out;
+    //   }
+    //   ion-searchbar :focus {
+    //     width: 60%;
+    //     background-image: none;
+    // }
   }

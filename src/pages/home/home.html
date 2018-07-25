@@ -1,7 +1,7 @@
 <ion-header>
     <ion-navbar>
-      <ion-title>
-        New Ionic Map
+      <ion-title text-center>
+            My Location
       </ion-title>
     </ion-navbar>
   </ion-header>
@@ -15,35 +15,58 @@
               </ion-item>
           </ion-list> -->
           <div text-center>
-            <button ion-button (click)="nearbyPlace('hospital')">Hospital</button>
-            <button ion-button (click)="nearbyPlace('restaurant')">Restaurant</button>
+            <button ion-button (click)="makeHospitalList()">Hospital</button>
+            <button ion-button (click)="makeRestaurantsList()">Restaurant</button>
+            <button ion-button (click)="loadMap()">Reset</button>
+            <button ion-button (click)="goToOffline()">Offline</button>
           </div>
           <div *ngIf="showSearchBox">
-              <ion-searchbar  [(ngModel)]="searchTerm" [formControl]="searchControl" (ionInput)="onSearchInput()"></ion-searchbar>
+              <ion-searchbar [(ngModel)]="searchTerm" [formControl]="searchControl" (ionInput)="onSearchInput()"></ion-searchbar>
           </div>
-          <!-- <div *ngIf="searching" class="spinner-container">
+          <div *ngIf="searching" class="spinner-container">
                   <ion-spinner></ion-spinner>
-          </div> -->
+          </div>
   
-        
-  
-  
-          <div *ngIf="(showSearchBox) && !(placesArray === null)">
-              <ion-scroll class="scroll" scrollY="true">
-                  <div *ngFor="let item of items">
+          <div *ngIf="search">
+                  <ion-scroll class="scroll" scrollY="true">
+                    <div *ngFor="let item of items">
+                          <button ion-item (click)="markSelectedPlace(item.place_id);">
+                                <ion-avatar item-left>
+                                      <img src="{{item.icon}}">
+                                </ion-avatar>
+                                <h2>{{item.name}}</h2>
+                                <p>Address: {{item.vicinity}}</p>
+                          </button> 
+                    </div>
+                    </ion-scroll>
+            </div>
+            <div *ngIf="!search">
+                        <ion-scroll class="scroll" scrollY="true">
+                  <div *ngFor="let item of itemForSearch">
                         <button ion-item (click)="markSelectedPlace(item.place_id);">
                               <ion-avatar item-left>
                                     <img src="{{item.icon}}">
                               </ion-avatar>
                               <h2>{{item.name}}</h2>
                               <p>Address: {{item.vicinity}}</p>
-                              <ion-avatar item-right>
-                                  <img src="{{item.icon}}">
-                            </ion-avatar>
                         </button> 
                   </div>
-              </ion-scroll>
+                  </ion-scroll>
           </div>
+<!--                          *******Last*******
+  
+                  <div *ngFor="let item of resultArray">
+                        <button ion-item (click)="markSelectedPlace(item.place_id);">
+                              <ion-avatar item-left>
+                                    <img src="{{item.icon}}">
+                              </ion-avatar>
+                              <h2>{{item.name}}</h2>
+                              <p>Address: {{item.vicinity}}</p>
+                        </button> 
+                  </div>
+
+
+                   -->
           <!-- <div *ngIf="!showSearchBox">
               <div *ngFor="let item of placesArray">
                    <button ion-item (click)="markSelectedPlace(item.place_id);">
@@ -74,4 +97,38 @@
                                           <p>Address: {{item.vicinity}}</p>
                                       </ion-item>
                                 </div> -->
+
+
+
+            <!-- <div *ngIf="hospitalList">
+                  <ion-item *ngFor="let item of temp">
+                                        <ion-avatar item-left>
+                                            <img src="{{item.icon}}">
+                                        </ion-avatar>
+                                          <h2>{{item.name}}</h2>
+                                          <p>Address: {{item.vicinity}}</p>
+                                      </ion-item>
+            </div> -->
+            
+                  <!-- <ion-list>
+                    <ion-item *ngFor="let restro of itemForSearch">
+                        <ion-row>
+                            <ion-col col-2><img src="{{restro.icon}}" alt="icon" class = "image"></ion-col>
+                            <ion-col col-10>
+                                <h3>{{restro.name}}</h3>
+                                <p>{{restro.vicinity}}</p>
+                            </ion-col>
+                          </ion-row>
+                    </ion-item>
+                  </ion-list> -->
+            <!-- <div *ngIf="restaurantList">
+                  <ion-item *ngFor="let item of restaurantList">
+                                        <ion-avatar item-left>
+                                            <img src="{{item.icon}}">
+                                        </ion-avatar>
+                                          <h2>{{item.name}}</h2>
+                                          <p>Address: {{item.vicinity}}</p>
+                                      </ion-item>
+            </div> -->
+
   </ion-content>

@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { ErrorHandler, NgModule } from '@angular/core';
-import { IonicApp, IonicErrorHandler, IonicModule } from 'ionic-angular';
+import { IonicApp, IonicErrorHandler, IonicModule, NavController } from 'ionic-angular';
 import { SplashScreen } from '@ionic-native/splash-screen';
 import { StatusBar } from '@ionic-native/status-bar';
 import { Geolocation } from '@ionic-native/geolocation'; 
@@ -15,6 +15,8 @@ import { HomePage } from '../pages/home/home';
 import { DynamicMapPage } from '../pages/dynamic-map/dynamic-map';
 import { NewMapPage } from '../pages/new-map/new-map';
 import { OfflineInterfacePage } from '../pages/offline-interface/offline-interface';
+import { SplashNewPage } from '../pages/splash-new/splash-new';
+import { CheckConnectivityProvider } from '../providers/check-connectivity/check-connectivity';
 
 
 @NgModule({
@@ -23,14 +25,16 @@ import { OfflineInterfacePage } from '../pages/offline-interface/offline-interfa
     HomePage,
     DynamicMapPage,
     NewMapPage,
-    OfflineInterfacePage
+    OfflineInterfacePage,
+    SplashNewPage
   ],
   imports: [
     BrowserModule,
     IonicModule.forRoot(MyApp),
     CacheModule.forRoot({keyPrefix: 'map-app-cache'}),
     IonicStorageModule.forRoot(),
-    FormsModule, ReactiveFormsModule
+    FormsModule,
+    ReactiveFormsModule,
   ],
   bootstrap: [IonicApp],
   entryComponents: [
@@ -38,7 +42,8 @@ import { OfflineInterfacePage } from '../pages/offline-interface/offline-interfa
     HomePage,
     DynamicMapPage,
     NewMapPage,
-    OfflineInterfacePage
+    OfflineInterfacePage,
+    SplashNewPage
   ],
   providers: [
     StatusBar,
@@ -46,7 +51,8 @@ import { OfflineInterfacePage } from '../pages/offline-interface/offline-interfa
     {provide: ErrorHandler, useClass: IonicErrorHandler},
     Geolocation,
     Network,
-    Toast
+    Toast,
+    CheckConnectivityProvider,
   ]
 })
 export class AppModule {}

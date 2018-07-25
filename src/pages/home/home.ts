@@ -1,5 +1,5 @@
 import { Component,NgZone, ElementRef, ViewChild } from '@angular/core';
-import { IonicPage, NavController, NavParams,  Platform } from 'ionic-angular';
+import { NavController, Platform, Events } from 'ionic-angular';
 import { Geolocation } from '@ionic-native/geolocation';
 import { FormControl } from '@angular/forms';
 import { Network } from '@ionic-native/network';
@@ -8,6 +8,7 @@ import { AlertController } from 'ionic-angular';
 import { Storage } from '@ionic/storage';
 import 'rxjs/add/operator/debounceTime';
 import { OfflineInterfacePage } from '../offline-interface/offline-interface';
+import { CheckConnectivityProvider } from '../../providers/check-connectivity/check-connectivity';
 
 
 
@@ -22,57 +23,72 @@ export class HomePage {
   searching: any = false;
   itemForSearch: any[] = [];
   showSearchBox: boolean = false;
+  search: boolean = false;
 
   @ViewChild('map') mapElement: ElementRef;
 
   map:any;
   latLng:any;
-  markers:any;
+  markers: any[] = [];
   mapOptions:any;  
-  isKM:any=2500;
-  isType:any="";
+  isKM:any=1500;
+  isType:string = '';
   placesArray: any[] = [];
   infowindow;
   placeMarker: any[] = [];
   markersFunc:any;
-  arrayWithDistance:any;
-  directionsService;
-  directionsDisplay;
-  markersNew: any[] = [];
- 
+ // arrayWithDistance:any;
+  //directionsService;
+  // directionsDisplay;
+  // markersNew: any[] = [];
+  resultArray: any[] = [];
+  hospitalList: any[]= [];
+  restaurantList: any[] = [];
+  connected: boolean;
+  disconnectedCounter: number = 0;
+
   constructor(
     private ngZone: NgZone,
     private geolocation : Geolocation,
-    private navCrtl: NavController,
     private platform:Platform,
     private network: Network,
+    private navCrtl: NavController,
     private toast: Toast,
     private alertCtrl: AlertController,
-    private storage: Storage
+    private storage: Storage,
+   // private checkConnectivityProvider: CheckConnectivityProvider,
+    private eventCtrl: Events
   ) { 
         platform.ready().then(() => {
           this.loadMap();
         });
+        this.connected = false;
         this.searchControl = new FormControl();
-        this.checkNetworkConnectivity();
         
   }
 
   ionViewDidLoad() {
-    
+   this.checkNetworkConnectivity();
   }
 
   checkNetworkConnectivity(){
-    this.network.onDisconnect().subscribe(() => {
-      this.showDisconnectedToast();
-      this.presentConfirm();
-      console.log('network was disconnected :-(');
-    });
+    
     this.network.onConnect().subscribe(() => {
+        this.connected = true;
       this.showConnectedToast();
       console.log('network connected!');
     });
+
+    this.network.onDisconnect().subscribe(() => {
+
+      if(this.connected === false){
+        this.showDisconnectedToast();
+        this.presentConfirm();
+      }
+      console.log('network was disconnected :-(');
+    });
   }
+
 
   showConnectedToast(){
     let toastOption = {
@@ -83,7 +99,7 @@ export class HomePage {
         backgroundColor: 'green',
         textColor: 'white',
         cornerRadius: 10,
-        addPixelsY:15
+        addPixelsY:150
       }
     }
     this.toast.showWithOptions(toastOption).subscribe(
@@ -102,7 +118,7 @@ export class HomePage {
         backgroundColor: 'red',
         textColor: 'white',
         cornerRadius: 10,
-        addPixelsY:15
+        addPixelsY:150
       }
     }
     this.toast.showWithOptions(toastOption).subscribe(
@@ -110,7 +126,9 @@ export class HomePage {
         console.log(toast);
       }
     );
+    
   }
+  
 
   presentConfirm() {
     let alert = this.alertCtrl.create({
@@ -149,7 +167,8 @@ export class HomePage {
         this.mapOptions = {
           center: this.latLng,
           zoom: 15,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
+          mapTypeId: google.maps.MapTypeId.ROADMAP,
+          disableDefaultUI: true
       };
       this.map = new google.maps.Map(this.mapElement.nativeElement, this.mapOptions);
         //console.log('placeid',position);
@@ -162,19 +181,83 @@ let marker = this.putMarker(this.latLng, 1);
       //   icon: image,
       //   title: 'You are Here!!'
       // });
+      this.infowindow = new google.maps.InfoWindow();
+      this.infowindow.close();
+      this.infowindow.setContent('You are Here!!');
+      //this.infowindow.open(this.map, marker);
 
     }, (err) => {
       console.log('Map loading Error',JSON.stringify(err));
     });
-    // this.directionsService = new google.maps.DirectionsService;
-    // this.directionsDisplay = new google.maps.DirectionsRenderer;
-    // this.directionsDisplay.setMap(this.map);
-
   }
 
 
  /*--------------------Find Nearby Place Starts------------------------*/ 
 
+
+ nearbyPlace(isType){
+  this.search = false;
+  this.showSearchBox = true;
+  this.searching = false;
+  this.deleteMarkers();
+  this.isType = isType;
+  let service = new google.maps.places.PlacesService(this.map);
+       service.nearbySearch({
+          location: this.latLng,
+          radius: this.isKM,
+          types: [isType]
+        },
+        (results, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          if(this.placesArray !== null || this.placesArray !== undefined){
+            this.placesArray = [];
+          }
+            results.forEach((item) => {
+              let tempMarker = new google.maps.Marker({
+                map: this.map,
+                position: item.geometry.location,
+                title: item.name
+            });
+          this.infowindow = new google.maps.InfoWindow();
+          this.markers.push(tempMarker);
+          google.maps.event.addListener(tempMarker, 'click', () => {
+        
+        this.ngZone.run(() => {
+          this.infowindow.close();
+          this.infowindow.setContent('<img src="'+item.icon +'"width=15px/>' +'&nbsp;&nbsp;&nbsp; <b>' + item.name+'</b>' +'<br>' + item.vicinity);
+          this.infowindow.open(this.map, tempMarker);
+        });
+
+      });
+  });
+        let bounds = new google.maps.LatLngBounds();
+        for (var i = 0; i < this.markers.length; i++) {
+        bounds.extend(this.markers[i].getPosition());
+        }
+
+        this.map.fitBounds(bounds);
+      }
+      this.storage.set(this.isType, JSON.stringify(this.itemForSearch));
+      console.log('item for search', this.itemForSearch);
+      this.getValueFromStorage(this.isType);
+      console.log('result', this.resultArray);
+    });
+ }
+
+
+ getValueFromStorage(isType){
+  this.search = false;
+  this.showSearchBox = true;
+  this.storage.get(isType).then((value) =>{
+    this.resultArray = JSON.parse(value);
+  },
+  (error) => {
+    console.log('error', error)
+  });
+}
+
+ 
+/*
   nearbyPlace(isType){
     this.isType = isType;
     this.onSearchInput();
@@ -216,6 +299,7 @@ let marker = this.putMarker(this.latLng, 1);
     // });
     console.log('type',this.isType);
     this.storage.set(this.isType, JSON.stringify(this.placesArray));
+    console.log('marker new',this.markersNew);
    // this.calculatedDisatanceInArray();
     //console.log('distance', this.arrayWithDistance);
   }
@@ -224,7 +308,7 @@ let marker = this.putMarker(this.latLng, 1);
   createMarker(place){
     //console.log('place',place);
       //this.markers = [];
-      if(this.markersNew !== undefined){
+      if(this.markersNew !== undefined || this.markersNew !== null){
         this.deleteMarkers();
       }
       
@@ -232,6 +316,7 @@ let marker = this.putMarker(this.latLng, 1);
       this.markersNew = this.putMarker(place,2);
       this.markers.push(this.markersNew);
       this.placesArray.push(place);
+      
      
       //console.log('location',place.geometry.location);
       this.infowindow = new google.maps.InfoWindow();
@@ -248,17 +333,29 @@ let marker = this.putMarker(this.latLng, 1);
   }
 
   deleteMarkers() {
-    for (var i = 0; i < this.markersNew.length; i++) {
-      this.markersNew[i].setMap(null);
+    for (var i = 0; i < this.markers.length; i++) {
+      this.markers[i].setMap(null);
     }
-    this.markersNew = [];
+    this.markers = [];
   }
+
+
+  */
+ deleteMarkers() {
+  for (var i = 0; i < this.markers.length; i++) {
+    this.markers[i].setMap(null);
+  }
+  this.markers = [];
+}
+
+
   /*--------------------Find Nearby Place Ends------------------------*/ 
 
 
 
   /*--------------------Dynamic search starts------------------------*/ 
   onSearchInput(){
+    this.search = true;
     this.searching = true;
     this.setFilteredItems();
     this.searchControl.valueChanges.debounceTime(700).subscribe(search => {
@@ -273,17 +370,23 @@ setFilteredItems() {
 
 }
 
-filterItems(searchTerm){
+// filterItems(searchTerm){
  
-  return this.itemForSearch.filter((item) => {
+//   return this.placesArray.filter((item) => {
+//       return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
+//   });    
+
+// }
+filterItems(searchTerm){
+  let temp =this.itemForSearch;
+ 
+  return temp.filter((item) => {
       return item.name.toLowerCase().indexOf(searchTerm.toLowerCase()) > -1;
   });    
 
 }
 
-pushInObject(){
-   this.itemForSearch = [...this.placesArray];
-}
+
 
  /*--------------------Dynamic search Ends------------------------*/ 
 
@@ -358,9 +461,9 @@ markSelectedPlace(placeIDReceived){
   });
 }
 
-  // goToDynamicMap(){
-  //   this.navCrtl.push(DynamicMapPage);
-  // }
+  goToOffline(){
+    this.navCrtl.push(OfflineInterfacePage);
+  }
 
   // getPlaceIdFromLatLong(latlng){
   //   let geocoder = new google.maps.Geocoder;
@@ -414,4 +517,65 @@ markSelectedPlace(placeIDReceived){
       return this.markersFunc;
       }
   }
+
+
+  getRestaurants(latLng){
+    var service = new google.maps.places.PlacesService(this.map);
+    let request = {
+      location: latLng,
+      radius: this.isKM,
+      types: ['restaurant']
+    };
+    return new Promise((resolve,reject) => {
+      service.nearbySearch(request,function(results,status){
+        if(status === google.maps.places.PlacesServiceStatus.OK){
+          resolve(results);
+        }
+        else{
+          reject(status);
+        }
+      });
+    });
+  }
+
+  makeRestaurantsList(){
+    this.itemForSearch = [];
+    this.getRestaurants(this.latLng).then((results: Array<any>) => {
+      this.itemForSearch = results;
+      this.nearbyPlace('restaurant');
+    });
+  }
+
+
+
+
+
+makeHospitalList(){
+  this.itemForSearch = [];
+  this.getHospitals(this.latLng).then((results: Array<any>) => {
+    this.itemForSearch = results;
+   this.nearbyPlace('hospital');
+});
+}
+  
+
+  getHospitals(latLng){
+    let service = new google.maps.places.PlacesService(this.map);
+    let request = {
+      location: latLng,
+      radius: this.isKM,
+      types: ['hospital','health']
+    };
+    return new Promise((resolve,reject) => {
+      service.nearbySearch(request,function(results,status){
+        if(status === google.maps.places.PlacesServiceStatus.OK){
+          resolve(results);
+        }
+        else{
+          reject(status);
+        }
+      });
+    });
+  }
+  
 }

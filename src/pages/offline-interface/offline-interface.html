@@ -6,7 +6,7 @@
 -->
 <ion-header>
 
-  <ion-navbar>
+  <ion-navbar hideBackButton="true">
     <ion-title>Offline Mode</ion-title>
   </ion-navbar>
 
@@ -24,15 +24,31 @@
       <div *ngIf="searching" class="spinner-container">
                 <ion-spinner></ion-spinner>
         </div>
-      <ion-scroll class="scroll" scrollY="true">
-        <!-- list content is changing in one click is "let item of resultArray" is used. -->
-          <div *ngFor="let item of items"> 
+        <div *ngIf="search">
+            <ion-scroll class="scroll" scrollY="true">
+                <div *ngFor="let item of items"> 
                     <ion-avatar item-left>
                           <img src="{{item.icon}}" width="20px">
                     </ion-avatar>
                     <h2>{{item.name}}</h2>
                     <p>Address: {{item.vicinity}}</p>
           </div>
-      </ion-scroll>
+              </ion-scroll>
+                <!-- list content is changing in one click is "let item of resultArray" is used. -->
+                  
+        </div>
+      <div *ngIf="!search">
+          <ion-scroll class="scroll" scrollY="true">
+              <!-- list content is changing in one click is "let item of resultArray" is used. -->
+                <div *ngFor="let item of resultArray"> 
+                          <ion-avatar item-left>
+                                <img src="{{item.icon}}" width="20px">
+                          </ion-avatar>
+                          <h2>{{item.name}}</h2>
+                          <p>Address: {{item.vicinity}}</p>
+                </div>
+            </ion-scroll>
+      </div>
+      
 
 </ion-content>
